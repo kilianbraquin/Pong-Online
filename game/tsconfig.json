@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "AMD",
+    "target": "ES5",
+    "outFile": "../public/js/game.js",
+
+    "rootDir": "./",
+    "moduleResolution": "node"
+  }
+}
