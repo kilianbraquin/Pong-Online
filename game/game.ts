@@ -72,7 +72,7 @@ function drawBall(isSecondPlayer: boolean) {
   if (ball) {
     ctx.beginPath();
     ctx.arc(
-      Constants.width - ball.x,
+      !isSecondPlayer ? ball.x : Constants.width - ball.x,
       ball.y,
       Constants.ballRadius,
       0,
@@ -90,14 +90,57 @@ function drawPaddle(x: number, y: number) {
   ctx.fill();
   ctx.closePath();
 }
-function drawScore() {
-  ctx.font = "16px Serif";
+
+function drawMiddle() {
+  const width = 6;
+  ctx.beginPath();
+  ctx.rect(Constants.width / 2 - width / 2, 0, width, Constants.height);
   ctx.fillStyle = "#FFFFFF";
-  ctx.fillText("Score: " + score, 8, 20);
+  ctx.fill();
+  ctx.closePath();
+}
+
+function drawScore(score: number[]) {
+  ctx.font = "16px Sans-Serif";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textAlign = "center";
+  ctx.fillText("Score : " + score[0], 300, 20);
+  ctx.fillText("Score : " + score[1], 900, 20);
+}
+
+function drawModeEntrainement() {
+  ctx.font = "48px Sans-Serif";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textAlign = "center";
+  ctx.fillText("Mode\rEntrainement", 900, Constants.height / 2 + 24);
+}
+
+function drawModeSpectateur() {
+  ctx.font = "24px Sans-Serif";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textAlign = "center";
+  ctx.fillText("Mode Spectateur", 300, Constants.height - 20);
+}
+
+function drawModeWaitingPlayers() {
+  const nbWaitingPlayers = GetAllPlayersID(players).reduce(
+    (acc, cur) => (players[cur].status === "WAITING" ? acc + 1 : acc),
+    0
+  );
+
+  ctx.font = "24px Sans-Serif";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Joueurs en attente : " + nbWaitingPlayers,
+    900,
+    Constants.height - 20
+  );
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawMiddle();
   const playingPlayers = GetPlayingPlayers(players);
   const isSecondPlayer =
     playingPlayers.length >= 2 && playingPlayers[1].playerId === playerID; // Pour être le joueur de gauche tout le temps
@@ -105,12 +148,26 @@ function draw() {
   for (let i = 0; i < playingPlayers.length; i++) {
     let x: number;
     const y = playingPlayers[i].y;
-    if ((i === 1 && isSecondPlayer) || (i === 0 && !isSecondPlayer))
+    if ((i === 1 && isSecondPlayer) || (i === 0 && !isSecondPlayer)) {
       x = Constants.leftPlayerPositionX;
-    else x = Constants.rightPlayerPositionX;
+    } else {
+      x = Constants.rightPlayerPositionX;
+    }
     drawBall(isSecondPlayer);
     drawPaddle(x, y);
   }
 
-  drawScore();
+  if (playingPlayers.length === 1) drawModeEntrainement();
+  else if (playingPlayers.length === 2) {
+    const scoreLeft = isSecondPlayer
+      ? playingPlayers[1].score
+      : playingPlayers[0].score;
+    const scoreRight = isSecondPlayer
+      ? playingPlayers[0].score
+      : playingPlayers[1].score;
+    drawScore([scoreLeft, scoreRight]);
+  }
+
+  if (playingPlayers.length >= 2) drawModeWaitingPlayers();
+  if (players[playerID].status === "WAITING") drawModeSpectateur();
 }

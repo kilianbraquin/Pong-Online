@@ -3,8 +3,12 @@ import {
   ballSpeed,
   height,
   playerHeight,
+  playerOffset,
   playerSpeed,
+  playerWidth,
   width,
+  leftPlayerPositionX,
+  rightPlayerPositionX,
 } from "./constants";
 import { Ball, Player } from "./types";
 
@@ -41,10 +45,10 @@ export const MoveBall = (ball: Ball) => {
 
   if (y + ySpeed < 0 + ballRadius) {
     y = y - ySpeed + ballSpeed;
-    ySpeed *= -1;
-  } else if (y + ySpeed > width - ballRadius) {
-    y = width - y + ySpeed - ballSpeed;
-    ySpeed *= -1;
+    ySpeed = ballSpeed;
+  } else if (y + ySpeed > height - ballRadius) {
+    y = y + (y + ySpeed) - height - ballSpeed;
+    ySpeed = -ballSpeed;
   } else {
     y += ySpeed;
   }
@@ -58,7 +62,33 @@ export const MoveBall = (ball: Ball) => {
 };
 
 export const GetGoal = (ball: Ball, width: number) => {
-  if (ball.x < 0 + ballRadius) return "LEFT";
-  else if (ball.x > width - ballRadius) return "RIGHT";
+  if (ball.x < 0 + ballRadius) return "RIGHT";
+  else if (ball.x > width - ballRadius) return "LEFT";
   else return "NONE";
+};
+
+export const CheckCollide = (
+  ball: Ball,
+  player: Player,
+  side: "LEFT" | "RIGHT"
+) => {
+  if (
+    player.y <= ball.y - ballRadius &&
+    ball.y + ballRadius <= player.y + playerHeight
+  ) {
+    if (side === "LEFT") {
+      if (
+        leftPlayerPositionX <= ball.x - ballRadius &&
+        ball.x - ballRadius <= leftPlayerPositionX + playerWidth
+      )
+        return true;
+    } else {
+      if (
+        rightPlayerPositionX <= ball.x + ballRadius &&
+        ball.x + ballRadius <= rightPlayerPositionX + playerWidth
+      )
+        return true;
+    }
+  }
+  return false;
 };

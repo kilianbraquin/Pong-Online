@@ -1,7 +1,7 @@
 {
   "name": "pong-online",
   "version": "1.0.0",
-  "main": "server.ts",
+  "main": "server.js",
   "license": "MIT",
   "scripts": {
     "start": "tsc --project ./game/tsconfig.json && ts-node server.ts"

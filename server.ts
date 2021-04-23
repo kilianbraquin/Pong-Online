@@ -10,7 +10,7 @@ import {
 import { Ball, Player, PlayerAction } from "./types";
 import serverGameLoop from "./serverGameLoop";
 
-const port = 80;
+const PORT = process.env.PORT || 5000;
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
@@ -79,8 +79,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, function () {
-  console.log(`Listening on ${port}`);
+server.listen(PORT, function () {
+  console.log(`Listening on ${PORT}`);
 });
 
 process.nextTick(() => serverGameLoop(io, players, ball));
