@@ -6,18 +6,33 @@
       integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
       crossorigin="anonymous"
     ></script>
-  </head>
-  <body>
-    <canvas
-      id="game"
-      width="800"
-      height="600"
-      style="background-color: black"
-    ></canvas>
     <script
       data-main="js/game.js"
       src="https://requirejs.org/docs/release/2.3.6/minified/require.js"
     ></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: antiquewhite;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas
+      id="game"
+      width="1200"
+      height="600"
+      style="background-color: black"
+    ></canvas>
+
     <script src="/js/game.js"></script>
   </body>
 </html>

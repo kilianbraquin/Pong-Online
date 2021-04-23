@@ -1,3 +1,10 @@
+export type Ball = {
+  x: number;
+  y: number;
+  xSpeed: number;
+  ySpeed: number;
+};
+
 export type Player = {
   playerId: string;
   currentAction: PlayerAction;
@@ -13,9 +20,12 @@ export type PlayerStatus = "PLAYING" | "WAITING";
 export type SocketEvent =
   | "connect"
   | "connection"
+  | "infoBall"
+  | "infoPlayer"
   | "currentPlayers"
   | "newPlayer"
   | "action"
   | "disconnect"
-  | "removePlayer"
-  | "updatePlayer";
+  | "removePlayer";
+
+export type GoalEvent = "LEFT" | "RIGHT" | "NONE";

@@ -1,4 +1,4 @@
-import { Player, PlayerAction, SocketEvent } from "../types";
+import { Ball, Player, PlayerAction, SocketEvent } from "../types";
 
 declare global {
   const io: (url?: string) => Socket;
@@ -7,7 +7,7 @@ declare global {
     id: string;
     on: (
       event: SocketEvent,
-      callback: (data: Player | Record<string, Player>) => void
+      callback: (data: Ball | Player | Record<string, Player> | string) => void
     ) => void;
     emit: (event: SocketEvent, data: PlayerAction) => void;
   }

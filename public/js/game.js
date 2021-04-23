@@ -1,42 +1,70 @@
-define("../constants", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.initialPositionY = exports.playerHeight = exports.playerWidth = exports.playerOffset = exports.ballRadius = exports.playerSpeed = exports.ballSpeed = exports.width = exports.height = void 0;
-    exports.height = 600;
-    exports.width = 800;
-    exports.ballSpeed = 10;
-    exports.playerSpeed = 10;
-    exports.ballRadius = 10;
-    exports.playerOffset = 20;
-    exports.playerWidth = 15;
-    exports.playerHeight = 40;
-    exports.initialPositionY = exports.height / 2 - exports.playerHeight / 2;
-});
 define("../types", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("../functions", ["require", "exports"], function (require, exports) {
+define("functions", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.GetAllPlayersID = void 0;
+    exports.GetPlayingPlayers = exports.GetAllPlayersID = void 0;
     var GetAllPlayersID = function (players) {
         var keys = Object.keys(players);
         return keys;
     };
     exports.GetAllPlayersID = GetAllPlayersID;
+    var GetPlayingPlayers = function (players) {
+        var allPlayersID = exports.GetAllPlayersID(players);
+        return allPlayersID
+            .filter(function (id) { return players[id].status === "PLAYING"; })
+            .map(function (id) { return players[id]; });
+    };
+    exports.GetPlayingPlayers = GetPlayingPlayers;
 });
-define("game", ["require", "exports", "../constants", "../functions"], function (require, exports, Constants, functions_1) {
+define("../constants", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.rightPlayerPositionX = exports.leftPlayerPositionX = exports.ballInitialPositionX = exports.ballInitialPositionY = exports.playerInitialPositionY = exports.playerHeight = exports.playerWidth = exports.playerOffset = exports.ballRadius = exports.playerSpeed = exports.ballSpeed = exports.width = exports.height = void 0;
+    exports.height = 600;
+    exports.width = 1200;
+    exports.ballSpeed = 5;
+    exports.playerSpeed = 8;
+    exports.ballRadius = 10;
+    exports.playerOffset = 20;
+    exports.playerWidth = 15;
+    exports.playerHeight = 80;
+    exports.playerInitialPositionY = exports.height / 2 - exports.playerHeight / 2;
+    exports.ballInitialPositionY = exports.height / 2 - exports.ballRadius;
+    exports.ballInitialPositionX = exports.width / 2 - exports.ballRadius;
+    exports.leftPlayerPositionX = exports.playerOffset;
+    exports.rightPlayerPositionX = exports.width - exports.playerOffset - exports.playerWidth / 2;
+});
+define("game", ["require", "exports", "../constants", "functions"], function (require, exports, Constants, functions_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var canvas = document.getElementById("game");
     var ctx = canvas.getContext("2d");
     var playerID;
+    var ball;
     var players;
     var socket = io();
     socket.on("connect", function () { return (playerID = socket.id); });
     socket.on("currentPlayers", function (data) {
         players = data;
+        draw();
+    });
+    socket.on("removePlayer", function (playerID) {
+        delete players[playerID];
+        draw();
+    });
+    socket.on("infoBall", function (data) {
+        ball = data;
+        draw();
+    });
+    socket.on("newPlayer", function (player) {
+        players[player.playerId] = player;
+        draw();
+    });
+    socket.on("infoPlayer", function (player) {
+        players[player.playerId] = player;
         draw();
     });
     var score = 0;
@@ -71,12 +99,14 @@ define("game", ["require", "exports", "../constants", "../functions"], function 
             }
         }
     }
-    function drawBall(x, y) {
-        ctx.beginPath();
-        ctx.arc(x, y, Constants.ballRadius, 0, Math.PI * 2);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
+    function drawBall(isSecondPlayer) {
+        if (ball) {
+            ctx.beginPath();
+            ctx.arc(Constants.width - ball.x, ball.y, Constants.ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fill();
+            ctx.closePath();
+        }
     }
     function drawPaddle(x, y) {
         ctx.beginPath();
@@ -92,17 +122,17 @@ define("game", ["require", "exports", "../constants", "../functions"], function 
     }
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBall(400, 200);
-        var playersID = functions_1.GetAllPlayersID(players);
-        for (var i = 0; i < Math.min(2, playersID.length); i++) {
+        var playingPlayers = functions_1.GetPlayingPlayers(players);
+        var isSecondPlayer = playingPlayers.length >= 2 && playingPlayers[1].playerId === playerID; // Pour être le joueur de gauche tout le temps
+        for (var i = 0; i < playingPlayers.length; i++) {
             var x = void 0;
-            var y = players[playersID[i]].y;
-            if (i == 0)
-                x = Constants.playerOffset;
+            var y = playingPlayers[i].y;
+            if ((i === 1 && isSecondPlayer) || (i === 0 && !isSecondPlayer))
+                x = Constants.leftPlayerPositionX;
             else
-                x = Constants.width - Constants.playerOffset;
+                x = Constants.rightPlayerPositionX;
+            drawBall(isSecondPlayer);
             drawPaddle(x, y);
-            console.log({ x: x, y: y });
         }
         drawScore();
     }

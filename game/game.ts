@@ -1,16 +1,33 @@
 import * as Constants from "../constants";
-import { GetAllPlayersID } from "../functions";
-import { Player, PlayerAction, PlayerStatus } from "../types";
+import { GetAllPlayersID, GetPlayingPlayers } from "./functions";
+import { Ball, Player } from "../types";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 let playerID: string;
+let ball: Ball;
 let players: Record<string, Player>;
 const socket = io();
 socket.on("connect", () => (playerID = socket.id));
-socket.on("currentPlayers", (data) => {
-  players = data as Record<string, Player>;
+socket.on("currentPlayers", (data: Record<string, Player>) => {
+  players = data;
+  draw();
+});
+socket.on("removePlayer", (playerID: string) => {
+  delete players[playerID];
+  draw();
+});
+socket.on("infoBall", (data) => {
+  ball = data as Ball;
+  draw();
+});
+socket.on("newPlayer", (player: Player) => {
+  players[player.playerId] = player;
+  draw();
+});
+socket.on("infoPlayer", (player: Player) => {
+  players[player.playerId] = player;
   draw();
 });
 
@@ -51,12 +68,20 @@ function keyUpHandler(e: KeyboardEvent) {
   }
 }
 
-function drawBall(x: number, y: number) {
-  ctx.beginPath();
-  ctx.arc(x, y, Constants.ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.closePath();
+function drawBall(isSecondPlayer: boolean) {
+  if (ball) {
+    ctx.beginPath();
+    ctx.arc(
+      Constants.width - ball.x,
+      ball.y,
+      Constants.ballRadius,
+      0,
+      Math.PI * 2
+    );
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fill();
+    ctx.closePath();
+  }
 }
 function drawPaddle(x: number, y: number) {
   ctx.beginPath();
@@ -73,15 +98,18 @@ function drawScore() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBall(400, 200);
-  const playersID = GetAllPlayersID(players);
-  for (let i = 0; i < Math.min(2, playersID.length); i++) {
+  const playingPlayers = GetPlayingPlayers(players);
+  const isSecondPlayer =
+    playingPlayers.length >= 2 && playingPlayers[1].playerId === playerID; // Pour être le joueur de gauche tout le temps
+
+  for (let i = 0; i < playingPlayers.length; i++) {
     let x: number;
-    const y = players[playersID[i]].y;
-    if (i == 0) x = Constants.playerOffset;
-    else x = Constants.width - Constants.playerOffset;
+    const y = playingPlayers[i].y;
+    if ((i === 1 && isSecondPlayer) || (i === 0 && !isSecondPlayer))
+      x = Constants.leftPlayerPositionX;
+    else x = Constants.rightPlayerPositionX;
+    drawBall(isSecondPlayer);
     drawPaddle(x, y);
-    console.log({ x, y });
   }
 
   drawScore();
