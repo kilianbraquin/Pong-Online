@@ -1,4 +1,4 @@
-import { Ball, Player, PlayerAction, SocketEvent } from "../types";
+import { Ball, Player, PlayerAction, SocketEvent } from "./types";
 
 declare global {
   const io: (url?: string) => Socket;

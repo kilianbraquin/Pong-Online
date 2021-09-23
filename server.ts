@@ -6,8 +6,8 @@ import {
   ballInitialPositionX,
   ballInitialPositionY,
   playerInitialPositionY,
-} from "./constants";
-import { Ball, Player, PlayerAction } from "./types";
+} from "./game/constants";
+import { Ball, Player, PlayerAction } from "./game/types";
 import serverGameLoop from "./serverGameLoop";
 
 const PORT = process.env.PORT || 5000;

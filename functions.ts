@@ -2,15 +2,15 @@ import {
   ballRadius,
   ballSpeed,
   height,
+  leftPlayerPositionX,
   playerHeight,
   playerOffset,
   playerSpeed,
   playerWidth,
-  width,
-  leftPlayerPositionX,
   rightPlayerPositionX,
-} from "./constants";
-import { Ball, Player } from "./types";
+  width,
+} from "./game/constants";
+import { Ball, Player } from "./game/types";
 
 export const GetAllPlayersID = (players: Record<string, Player>) => {
   const keys = Object.keys(players);

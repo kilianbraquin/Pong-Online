@@ -1,20 +1,20 @@
 import { Server } from "socket.io";
 import {
-  ballInitialPositionX,
-  ballInitialPositionY,
-  ballRadius,
-  ballSpeed,
-  playerInitialPositionY,
-  width,
-} from "./constants";
-import {
   CheckCollide,
   GetGoal,
   GetPlayingPlayers,
   MoveBall,
   MovePlayer,
 } from "./functions";
-import { Ball, GoalEvent, Player } from "./types";
+import {
+  ballInitialPositionX,
+  ballInitialPositionY,
+  ballRadius,
+  ballSpeed,
+  playerInitialPositionY,
+  width,
+} from "./game/constants";
+import { Ball, GoalEvent, Player } from "./game/types";
 
 export default function serverGameLoop(
   io: Server,

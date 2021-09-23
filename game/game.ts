@@ -1,6 +1,6 @@
-import * as Constants from "../constants";
+import * as Constants from "./constants";
 import { GetAllPlayersID, GetPlayingPlayers } from "./functions";
-import { Ball, Player } from "../types";
+import { Ball, Player } from "./types";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
